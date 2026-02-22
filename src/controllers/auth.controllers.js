@@ -1,5 +1,6 @@
 const userModel = require("../models/users.models.js");
 const jwt = require("jsonwebtoken");
+const emailService = require("../services/email.service");             
 async function registerController(req, res) {
     const { name, email, password } = req.body;
     const isEmailExist = await userModel.findOne({ email: email });
@@ -28,7 +29,8 @@ async function loginController(req, res) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" })
     res.cookie("token", token)
     res.status(200).json({ message: "User logged in successfully", success: true, user: { _id: user._id, name: user.name, email: user.email }, token })
-
+     
+    await emailService.registerEmail(user.email, user.name);
 }
 
 
